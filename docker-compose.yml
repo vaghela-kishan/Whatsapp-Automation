@@ -1,0 +1,60 @@
+# Local infrastructure for when you switch from SQLite to PostgreSQL.
+#
+#   docker compose up -d db redis
+#
+# Then in backend/.env set:
+#   DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/support
+#
+# The `backend` service is provided for a fully containerised run and is added
+# to the default startup set at the deployment step.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: aisp_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: support
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d support"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: aisp_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: aisp_backend
+    restart: unless-stopped
+    profiles: ["full"]          # only starts with: docker compose --profile full up
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/support
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:

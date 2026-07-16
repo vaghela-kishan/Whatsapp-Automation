@@ -1,0 +1,24 @@
+[project]
+name = "ai-support-platform-backend"
+version = "0.1.0"
+description = "Production-grade AI Customer Support Automation Platform - backend"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["app", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "C4", "SIM"]
+ignore = ["B008"]  # FastAPI uses function calls (Depends/Query) in defaults.
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/*" = ["E402"]
+"tests/*" = ["S101"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
