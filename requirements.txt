@@ -1,23 +1,24 @@
-fastapi==0.116.1
-uvicorn[standard]==0.35.0
-python-dotenv==1.1.1
-requests==2.32.4
-httpx==0.28.1
-pydantic==2.11.7
-python-multipart==0.0.20
-jinja2==3.1.6
+# Runtime dependencies (pinned to compatible ranges).
+# Regenerate a fully-locked file later with: pip freeze > requirements.lock
 
-google-generativeai==0.8.5
-
-openpyxl==3.1.5
-pandas==2.3.1
-
-selenium==4.34.2
-webdriver-manager==4.0.2
-
-beautifulsoup4==4.13.4
-lxml==6.0.0
-
-Pillow==11.3.0
-
-aiofiles==24.1.0
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.32,<1.0
+# ASGI toolkit FastAPI is built on. Declared explicitly because we import it
+# directly (core/exceptions.py, core/middleware.py), not just via FastAPI.
+starlette>=0.40,<2.0
+pydantic>=2.9,<3.0
+# Reads settings from .env — pydantic-settings pulls in python-dotenv itself.
+pydantic-settings>=2.5,<3.0
+# Enables Pydantic's EmailStr validation.
+email-validator>=2.0,<3.0
+SQLAlchemy>=2.0.35,<2.1
+alembic>=1.14,<2.0
+python-multipart>=0.0.9
+# HTTP client for outbound WhatsApp (Meta Cloud API) calls.
+httpx>=0.27,<1.0
+# Google Gemini SDK. Optional at runtime: the AI layer lazily imports it and
+# falls back to the mock provider if it is missing or no key is configured.
+google-generativeai>=0.8,<1.0
+# PostgreSQL driver (psycopg 3). Unused with SQLite, installed now so the
+# switch to Postgres later needs no dependency changes.
+psycopg[binary]>=3.2,<4.0
